@@ -608,7 +608,7 @@ FabArrayBase::FB::define_fb(const FabArrayBase& fa)
     const int                  MyProc   = ParallelDescriptor::MyProc();
     const BoxArray&            ba       = fa.boxArray();
     const DistributionMapping& dm       = fa.DistributionMap();
-    const Vector<int>&          imap     = fa.IndexArray();
+    const Vector<int>&         imap     = fa.IndexArray();
 
     // For local copy, all workers in the same team will have the identical copy of tags
     // so that they can share work.  But for remote communication, they are all different.
@@ -819,7 +819,7 @@ FabArrayBase::FB::define_epo (const FabArrayBase& fa)
     const int                  MyProc   = ParallelDescriptor::MyProc();
     const BoxArray&            ba       = fa.boxArray();
     const DistributionMapping& dm       = fa.DistributionMap();
-    const Vector<int>&          imap     = fa.IndexArray();
+    const Vector<int>&         imap     = fa.IndexArray();
 
     // For local copy, all workers in the same team will have the identical copy of tags
     // so that they can share work.  But for remote communication, they are all different.

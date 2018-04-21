@@ -340,12 +340,6 @@ public:
     {
         CFinfo (const FabArrayBase& finefa,
                 const Geometry&     finegm,
-                int                 ng,
-                bool                include_periodic,
-                bool                include_physbndry);
-
-        CFinfo (const FabArrayBase& finefa,
-                const Geometry&     finegm,
                 const IntVect&      ng,
                 bool                include_periodic,
                 bool                include_physbndry);
@@ -374,12 +368,6 @@ public:
     static CFinfoCache m_TheCrseFineCache;
 
     static CacheStats m_CFinfo_stats;
-
-    static const CFinfo& TheCFinfo (const FabArrayBase& finefa,
-                                    const Geometry&     finegm,
-                                    int                 ng,
-                                    bool                include_periodic,
-                                    bool                include_physbndry);
 
     static const CFinfo& TheCFinfo (const FabArrayBase& finefa,
                                     const Geometry&     finegm,

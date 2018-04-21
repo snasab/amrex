@@ -436,7 +436,7 @@ TagBoxArray::buffer (int nbuf)
 {
     if (nbuf != 0)
     {
-        BL_ASSERT(nbuf <= n_grow.min());
+        BL_ASSERT(nbuf <= n_grow[0]);
 
 #ifdef _OPENMP
 #pragma omp parallel
@@ -457,7 +457,7 @@ TagBoxArray::mapPeriodic (const Geometry& geom)
 
     // This function is called after coarsening.
     // So we can assume that n_grow is 0.
-    BL_ASSERT(n_grow == IntVect::TheZeroVector());
+    BL_ASSERT(n_grow[0] == 0);
 
     TagBoxArray tmp(boxArray(),DistributionMap()); // note that tmp is filled w/ CLEAR.
 
