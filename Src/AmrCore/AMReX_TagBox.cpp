@@ -428,7 +428,7 @@ TagBoxArray::TagBoxArray (const BoxArray& ba,
 int
 TagBoxArray::borderSize () const
 {
-    return n_grow;
+    return n_grow[0];
 }
 
 void 
@@ -443,7 +443,7 @@ TagBoxArray::buffer (int nbuf)
 #endif
 	for (MFIter mfi(*this); mfi.isValid(); ++mfi)
 	{
-	    get(mfi).buffer(nbuf, n_grow);
+	    get(mfi).buffer(nbuf, n_grow[0]);
         } 
     }
 }
@@ -641,10 +641,10 @@ TagBoxArray::coarsen (const IntVect & ratio)
 	(*this)[mfi].coarsen(ratio,isOwner(mfi.LocalIndex()));
     }
 
-    boxarray.growcoarsen(n_grow,ratio);
+    boxarray.growcoarsen(n_grow[0],ratio);
     updateBDKey();  // because we just modify boxarray in-place.
 
-    n_grow = 0;
+    n_grow = IntVect::TheZeroVector();
 }
 
 }

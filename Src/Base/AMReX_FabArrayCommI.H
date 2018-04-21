@@ -15,7 +15,7 @@ FabArray<FAB>::FBEP_nowait (int scomp, int ncomp, const Periodicity& period, boo
     if (enforce_periodicity_only) {
 	work_to_do = period.isAnyPeriodic();
     } else {
-	work_to_do = n_grow > 0;
+	work_to_do = n_grow.min() > 0;
     }
     if (!work_to_do) return;
 
@@ -357,7 +357,7 @@ template <class FAB>
 void
 FabArray<FAB>::FillBoundary_finish ()
 {
-    if ( n_grow <= 0 && !fb_epo ) return; // For epo (Enforce Periodicity Only), there may be no ghost cells.
+    if ( n_grow.allLE(IntVect::TheZeroVector()) && !fb_epo ) return; // For epo (Enforce Periodicity Only), there may be no ghost cells.
 
     if (ParallelContext::NProcsSub() == 1) return;
 
@@ -487,8 +487,8 @@ FabArray<FAB>::ParallelCopy (const FabArray<FAB>& src,
                              int                  scomp,
                              int                  dcomp,
                              int                  ncomp,
-                             int                  snghost,
-                             int                  dnghost,
+                             const IntVect&       snghost,
+                             const IntVect&       dnghost,
                              const Periodicity&   period,
                              CpOp                 op)
 {
@@ -499,12 +499,13 @@ FabArray<FAB>::ParallelCopy (const FabArray<FAB>& src,
     BL_ASSERT(op == FabArrayBase::COPY || op == FabArrayBase::ADD);
     BL_ASSERT(boxArray().ixType() == src.boxArray().ixType());
 
-    BL_ASSERT(src.nGrow() >= snghost);
-    BL_ASSERT(    nGrow() >= dnghost);
+    BL_ASSERT(src.nGrowVect().allGE(snghost));
+    BL_ASSERT(    nGrowVect().allGE(dnghost));
 
     if ((src.boxArray().ixType().cellCentered() || op == FabArrayBase::COPY) &&
         (boxarray == src.boxarray && distributionMap == src.distributionMap)
-	&& snghost ==0 && dnghost == 0 && !period.isAnyPeriodic())
+	&& snghost == IntVect::TheZeroVector() && dnghost == IntVect::TheZeroVector()
+        && !period.isAnyPeriodic())
     {
         //
         // Short-circuit full intersection code if we're doing copy()s or if
@@ -1047,7 +1048,7 @@ FabArray<FAB>::copyTo (FAB&       dest,
     BL_PROFILE("FabArray::copy(fab)");
 
     BL_ASSERT(dcomp + ncomp <= dest.nComp());
-    BL_ASSERT(nghost <= nComp());
+    BL_ASSERT(nghost <= nGrow());
 
     if (ParallelContext::NProcsSub() == 1)
     {
