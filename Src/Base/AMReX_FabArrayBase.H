@@ -445,7 +445,8 @@ protected:
     //
     struct FB
     {
-        FB (const FabArrayBase& fa, bool cross, const Periodicity& period,
+        FB (const FabArrayBase& fa, const IntVect& nghost,
+            bool cross, const Periodicity& period,
 	    bool enforce_periodicity_only);
         ~FB ();
 
@@ -480,7 +481,8 @@ protected:
     static FBCache    m_TheFBCache;
     static CacheStats m_FBC_stats;
     //
-    const FB& getFB (const Periodicity& period, bool cross=false, bool enforce_periodicity_only = false) const;
+    const FB& getFB (const IntVect& nghost, const Periodicity& period,
+                     bool cross=false, bool enforce_periodicity_only = false) const;
     //
     void flushFB (bool no_assertion=false) const;       // This flushes its own FB.
     static void flushFBCache (); // This flushes the entire cache.

@@ -2,24 +2,26 @@
 
 template <class FAB>
 void
-FabArray<FAB>::FBEP_nowait (int scomp, int ncomp, const Periodicity& period, bool cross,
+FabArray<FAB>::FBEP_nowait (int scomp, int ncomp, const IntVect& nghost,
+                            const Periodicity& period, bool cross,
 			    bool enforce_periodicity_only)
 {
     fb_cross = cross;
     fb_epo   = enforce_periodicity_only;
     fb_scomp = scomp;
     fb_ncomp = ncomp;
+    fb_nghost = nghost;
     fb_period = period;
 
     bool work_to_do;
     if (enforce_periodicity_only) {
 	work_to_do = period.isAnyPeriodic();
     } else {
-	work_to_do = n_grow.max() > 0;
+	work_to_do = nghost.max() > 0;
     }
     if (!work_to_do) return;
 
-    const FB& TheFB = getFB(period, cross, enforce_periodicity_only);
+    const FB& TheFB = getFB(nghost, period, cross, enforce_periodicity_only);
 
     if (ParallelContext::NProcsSub() == 1)
     {
@@ -82,7 +84,7 @@ FabArray<FAB>::FBEP_nowait (int scomp, int ncomp, const Periodicity& period, boo
     Vector<int>                         send_rank;
     Vector<MPI_Request>&                send_reqs = fb_send_reqs;
     Vector<const CopyComTagsContainer*> send_cctc;
-    Vector<Vector<int> >                 indv_send_size;
+    Vector<Vector<int> >                indv_send_size;
     Vector<MPI_Request>                 pre_reqs;
 
     fb_tag = SeqNum;
@@ -372,7 +374,7 @@ FabArray<FAB>::FillBoundary_finish ()
     BL_ASSERT(!ParallelDescriptor::MPIOneSided());
 #endif
 
-    const FB& TheFB = getFB(fb_period,fb_cross,fb_epo);
+    const FB& TheFB = getFB(fb_nghost,fb_period,fb_cross,fb_epo);
 
     const int N_rcvs = TheFB.m_RcvTags->size();
     const int N_snds = TheFB.m_SndTags->size();

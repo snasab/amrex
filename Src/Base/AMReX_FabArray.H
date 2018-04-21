@@ -525,11 +525,13 @@ public:
     //! Same as FillBoundary(), but only copies ncomp components starting at scomp.
     void FillBoundary (int scomp, int ncomp, bool cross = false);
     void FillBoundary (int scomp, int ncomp, const Periodicity& period, bool cross = false);
+    void FillBoundary (int scomp, int ncomp, const IntVect& nghost, const Periodicity& period, bool cross = false);
 
     void FillBoundary_nowait (bool cross = false);
     void FillBoundary_nowait (const Periodicity& period, bool cross = false);
     void FillBoundary_nowait (int scomp, int ncomp, bool cross = false);
     void FillBoundary_nowait (int scomp, int ncomp, const Periodicity& period, bool cross = false);
+    void FillBoundary_nowait (int scomp, int ncomp, const IntVect& nghost, const Periodicity& period, bool cross = false);
     void FillBoundary_finish ();
 
     /** \brief Fill cells outside periodic domains with their corresponding cells inside
@@ -538,6 +540,8 @@ public:
     */
     void EnforcePeriodicity (const Periodicity& period);
     void EnforcePeriodicity (int scomp, int ncomp, const Periodicity& period);
+    void EnforcePeriodicity (int scomp, int ncomp, const IntVect& nghost,
+                             const Periodicity& period);
 
     // covered   : ghost cells covered by valid cells of this FabArray
     //             (including periodically shifted valid cells)
@@ -633,7 +637,8 @@ private:
 
     void AllocFabs (const FabFactory<FAB>& factory);
 
-    void FBEP_nowait (int scomp, int ncomp, const Periodicity& period, bool cross,
+    void FBEP_nowait (int scomp, int ncomp, const IntVect& nghost,
+                      const Periodicity& period, bool cross,
 		      bool enforce_periodicity_only = false);
 
 #ifdef BL_USE_MPI
@@ -680,6 +685,7 @@ public:
     // Data used in non-blocking FillBoundary
     bool fb_cross, fb_epo;
     int fb_scomp, fb_ncomp;
+    IntVect fb_nghost;
     Periodicity fb_period;
 
     //
@@ -1387,7 +1393,7 @@ FabArray<FAB>::FillBoundary (bool cross)
 {
     BL_PROFILE("FabArray::FillBoundary()");
     if ( n_grow.max() > 0 ) {
-	FillBoundary_nowait(0, nComp(), Periodicity::NonPeriodic(), cross);
+	FillBoundary_nowait(0, nComp(), n_grow, Periodicity::NonPeriodic(), cross);
 	FillBoundary_finish();
     }
 }
@@ -1398,7 +1404,7 @@ FabArray<FAB>::FillBoundary (const Periodicity& period, bool cross)
 {
     BL_PROFILE("FabArray::FillBoundary()");
     if ( n_grow.max() > 0 ) {
-	FillBoundary_nowait(0, nComp(), period, cross);
+	FillBoundary_nowait(0, nComp(), n_grow, period, cross);
 	FillBoundary_finish();
     }
 }
@@ -1409,7 +1415,7 @@ FabArray<FAB>::FillBoundary (int scomp, int ncomp, bool cross)
 {
     BL_PROFILE("FabArray::FillBoundary()");
     if ( n_grow.max() > 0 ) {
-	FillBoundary_nowait(scomp, ncomp, Periodicity::NonPeriodic(), cross);
+	FillBoundary_nowait(scomp, ncomp, n_grow, Periodicity::NonPeriodic(), cross);
 	FillBoundary_finish();
     }
 }
@@ -1420,7 +1426,21 @@ FabArray<FAB>::FillBoundary (int scomp, int ncomp, const Periodicity& period, bo
 {
     BL_PROFILE("FabArray::FillBoundary()");
     if ( n_grow.max() > 0 ) {
-	FillBoundary_nowait(scomp, ncomp, period, cross);
+	FillBoundary_nowait(scomp, ncomp, n_grow, period, cross);
+	FillBoundary_finish();
+    }
+}
+
+template <class FAB>
+void
+FabArray<FAB>::FillBoundary (int scomp, int ncomp, const IntVect& nghost,
+                             const Periodicity& period, bool cross)
+{
+    BL_PROFILE("FabArray::FillBoundary()");
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(nghost.allLE(nGrowVect()),
+                                     "FillBoundary: asked to fill more ghost cells than we have");
+    if ( nghost.max() > 0 ) {
+	FillBoundary_nowait(scomp, ncomp, nghost, period, cross);
 	FillBoundary_finish();
     }
 }
@@ -1429,21 +1449,21 @@ template <class FAB>
 void
 FabArray<FAB>::FillBoundary_nowait (bool cross)
 {
-    FillBoundary_nowait(0, nComp(), Periodicity::NonPeriodic(), cross);
+    FillBoundary_nowait(0, nComp(), nGrowVect(), Periodicity::NonPeriodic(), cross);
 }
 
 template <class FAB>
 void
 FabArray<FAB>::FillBoundary_nowait (const Periodicity& period, bool cross)
 {
-    FillBoundary_nowait(0, nComp(), period, cross);
+    FillBoundary_nowait(0, nComp(), nGrowVect(), period, cross);
 }
 
 template <class FAB>
 void
 FabArray<FAB>::FillBoundary_nowait (int scomp, int ncomp, bool cross)
 {
-    FillBoundary_nowait(scomp, ncomp, Periodicity::NonPeriodic(), cross);
+    FillBoundary_nowait(scomp, ncomp, nGrowVect(), Periodicity::NonPeriodic(), cross);
 }
 
 template <class FAB>
@@ -1452,7 +1472,7 @@ FabArray<FAB>::EnforcePeriodicity (const Periodicity& period)
 {
     BL_PROFILE("FabArray::EnforcePeriodicity");
     if (period.isAnyPeriodic()) {
-	FBEP_nowait(0, nComp(), period, false, true);
+	FBEP_nowait(0, nComp(), nGrowVect(), period, false, true);
 	FillBoundary_finish(); // unsafe unless isAnyPeriodic()
     }
 }
@@ -1463,7 +1483,19 @@ FabArray<FAB>::EnforcePeriodicity (int scomp, int ncomp, const Periodicity& peri
 {
     BL_PROFILE("FabArray::EnforcePeriodicity");
     if (period.isAnyPeriodic()) {
-	FBEP_nowait(scomp, ncomp, period, false, true);
+	FBEP_nowait(scomp, ncomp, nGrowVect(), period, false, true);
+	FillBoundary_finish(); // unsafe unless isAnyPeriodic()
+    }
+}
+
+template <class FAB>
+void
+FabArray<FAB>::EnforcePeriodicity (int scomp, int ncomp, const IntVect& nghost,
+                                   const Periodicity& period)
+{
+    BL_PROFILE("FabArray::EnforcePeriodicity");
+    if (period.isAnyPeriodic()) {
+	FBEP_nowait(scomp, ncomp, nghost, period, false, true);
 	FillBoundary_finish(); // unsafe unless isAnyPeriodic()
     }
 }
@@ -1472,7 +1504,15 @@ template <class FAB>
 void
 FabArray<FAB>::FillBoundary_nowait (int scomp, int ncomp, const Periodicity& period, bool cross)
 {
-    FBEP_nowait(scomp, ncomp, period, cross);
+    FBEP_nowait(scomp, ncomp, nGrowVect(), period, cross);
+}
+
+template <class FAB>
+void
+FabArray<FAB>::FillBoundary_nowait (int scomp, int ncomp, const IntVect& nghost,
+                                    const Periodicity& period, bool cross)
+{
+    FBEP_nowait(scomp, ncomp, nghost, period, cross);
 }
 
 template <class FAB>
@@ -1485,7 +1525,7 @@ FabArray<FAB>::BuildMask (const Box& phys_domain, const Periodicity& period,
     int ncomp = this->nComp();
     const IntVect& ngrow = this->nGrowVect();
 
-    const FabArrayBase::FB& TheFB = this->getFB(period);
+    const FabArrayBase::FB& TheFB = this->getFB(ngrow,period);
 
     const CopyComTagsContainer&      LocTags = *(TheFB.m_LocTags);
     const MapOfCopyComTagContainers& RcvTags = *(TheFB.m_RcvTags);

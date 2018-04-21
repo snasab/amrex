@@ -577,10 +577,11 @@ FabArrayBase::getCPC (const IntVect& dstng, const FabArrayBase& src, const IntVe
 // Some stuff for fill boundary
 //
 
-FabArrayBase::FB::FB (const FabArrayBase& fa, bool cross, const Periodicity& period, 
-		      bool enforce_periodicity_only)
+FabArrayBase::FB::FB (const FabArrayBase& fa, const IntVect& nghost,
+                      bool cross, const Periodicity& period, 
+                      bool enforce_periodicity_only)
     : m_typ(fa.boxArray().ixType()), m_crse_ratio(fa.boxArray().crseRatio()),
-      m_ngrow(fa.nGrowVect()), m_cross(cross),
+      m_ngrow(nghost), m_cross(cross),
       m_epo(enforce_periodicity_only), m_period(period),
       m_threadsafe_loc(false), m_threadsafe_rcv(false),
       m_LocTags(new CopyComTag::CopyComTagsContainer),
@@ -1031,7 +1032,8 @@ FabArrayBase::flushFBCache ()
 }
 
 const FabArrayBase::FB&
-FabArrayBase::getFB (const Periodicity& period, bool cross, bool enforce_periodicity_only) const
+FabArrayBase::getFB (const IntVect& nghost, const Periodicity& period,
+                     bool cross, bool enforce_periodicity_only) const
 {
     BL_PROFILE("FabArrayBase::getFB()");
 
@@ -1041,7 +1043,7 @@ FabArrayBase::getFB (const Periodicity& period, bool cross, bool enforce_periodi
     {
 	if (it->second->m_typ        == boxArray().ixType()      &&
             it->second->m_crse_ratio == boxArray().crseRatio()   &&
-	    it->second->m_ngrow      == nGrowVect()              &&
+	    it->second->m_ngrow      == nghost                   &&
 	    it->second->m_cross      == cross                    &&
 	    it->second->m_epo        == enforce_periodicity_only &&
 	    it->second->m_period     == period              )
@@ -1053,7 +1055,7 @@ FabArrayBase::getFB (const Periodicity& period, bool cross, bool enforce_periodi
     }
 
     // Have to build a new one
-    FB* new_fb = new FB(*this, cross, period, enforce_periodicity_only);
+    FB* new_fb = new FB(*this, nghost, cross, period, enforce_periodicity_only);
 
 #ifdef BL_PROFILE
     m_FBC_stats.bytes += new_fb->bytes();
