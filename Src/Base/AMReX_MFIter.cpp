@@ -380,7 +380,7 @@ MFIter::grownnodaltilebox (int dir, int ng) const
 Box
 MFIter::grownnodaltilebox (int dir, const IntVect& ng) const
 {
-    BL_ASSERT(dir < AMREX_SPACnDIM);
+    BL_ASSERT(dir < AMREX_SPACEDIM);
     Box bx = nodaltilebox(dir);
     const Box& vbx = validbox();
     for (int d=0; d<AMREX_SPACEDIM; ++d) {

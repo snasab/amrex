@@ -1164,7 +1164,7 @@ MultiFab::minus (const MultiFab& mf,
     BL_ASSERT(strt_comp >= 0);
     BL_ASSERT(num_comp > 0);
     BL_ASSERT(strt_comp + num_comp - 1 < n_comp && strt_comp + num_comp - 1 < mf.n_comp);
-    BL_ASSERT(nghost <= n_grow && nghost <= mf.n_grow.min());
+    BL_ASSERT(nghost <= n_grow.min() && nghost <= mf.n_grow.min());
 
 #ifdef _OPENMP
 #pragma omp parallel
@@ -1187,7 +1187,7 @@ MultiFab::divide (const MultiFab& mf,
     BL_ASSERT(strt_comp >= 0);
     BL_ASSERT(num_comp > 0);
     BL_ASSERT(strt_comp + num_comp - 1 < n_comp && strt_comp + num_comp - 1 < mf.n_comp);
-    BL_ASSERT(nghost <= n_grow && nghost <= mf.n_grow.min());
+    BL_ASSERT(nghost <= n_grow.min() && nghost <= mf.n_grow.min());
 
 #ifdef _OPENMP
 #pragma omp parallel
@@ -1252,7 +1252,7 @@ MultiFab::plus (const MultiFab& mf,
     BL_ASSERT(strt_comp >= 0);
     BL_ASSERT(num_comp > 0);
     BL_ASSERT(strt_comp + num_comp - 1 < n_comp && strt_comp + num_comp - 1 < mf.n_comp);
-    BL_ASSERT(nghost <= n_grow && nghost <= mf.n_grow.min());
+    BL_ASSERT(nghost <= n_grow.min() && nghost <= mf.n_grow.min());
 
 #ifdef _OPENMP
 #pragma omp parallel
