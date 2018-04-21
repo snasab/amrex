@@ -15,7 +15,7 @@ FabArray<FAB>::FBEP_nowait (int scomp, int ncomp, const Periodicity& period, boo
     if (enforce_periodicity_only) {
 	work_to_do = period.isAnyPeriodic();
     } else {
-	work_to_do = n_grow.min() > 0;
+	work_to_do = n_grow.max() > 0;
     }
     if (!work_to_do) return;
 
