@@ -20,6 +20,7 @@ MLCellLinOp::define (const Vector<Geometry>& a_geom,
                      const LPInfo& a_info,
                      const Vector<FabFactory<FArrayBox> const*>& a_factory)
 {
+    BL_PROFILE_REGION("MLCellLinOp::define()"+std::to_string(a_geom.size()));
     MLLinOp::define(a_geom, a_grids, a_dmap, a_info, a_factory);
     defineAuxData();
     defineBC();
@@ -28,12 +29,18 @@ MLCellLinOp::define (const Vector<Geometry>& a_geom,
 void
 MLCellLinOp::defineAuxData ()
 {
+    BL_PROFILE("MLCellLinOp::defineAuxData()");
+    BL_PROFILE_VAR_NS("MLCL::dAD::undrrelxr", blp_undrrelxr);
+    BL_PROFILE_VAR_NS("MLCL::dAD::maskvals", blp_maskvals);
+    BL_PROFILE_VAR_NS("MLCL::dAD::fluxreg", blp_fluxreg);
+
     m_undrrelxr.resize(m_num_amr_levels);
     m_maskvals.resize(m_num_amr_levels);
     m_fluxreg.resize(m_num_amr_levels-1);
 
     const int ncomp = getNComp();
 
+    BL_PROFILE_VAR_START(blp_undrrelxr);
     for (int amrlev = 0; amrlev < m_num_amr_levels; ++amrlev)
     {
         m_undrrelxr[amrlev].resize(m_num_mg_levels[amrlev]);
@@ -44,7 +51,9 @@ MLCellLinOp::defineAuxData ()
                                               1, 0, 0, ncomp);
         }
     }
-    
+    BL_PROFILE_VAR_STOP(blp_undrrelxr);
+
+    BL_PROFILE_VAR_START(blp_maskvals);
     for (int amrlev = 0; amrlev < m_num_amr_levels; ++amrlev)
     {
         m_maskvals[amrlev].resize(m_num_mg_levels[amrlev]);
@@ -62,7 +71,9 @@ MLCellLinOp::defineAuxData ()
             }
         }
     }
+    BL_PROFILE_VAR_STOP(blp_maskvals);
 
+    BL_PROFILE_VAR_START(blp_fluxreg);
     for (int amrlev = 0; amrlev < m_num_amr_levels-1; ++amrlev)
     {
         const IntVect ratio{m_amr_ref_ratio[amrlev]};
@@ -71,6 +82,7 @@ MLCellLinOp::defineAuxData ()
                                  m_geom[amrlev+1][0], m_geom[amrlev][0],
                                  ratio, amrlev+1, ncomp);
     }
+    BL_PROFILE_VAR_STOP(blp_fluxreg);
 
 #if (AMREX_SPACEDIM != 3)
     bool no_metric_term = Geometry::IsCartesian() || !info.has_metric_term;
@@ -92,6 +104,13 @@ MLCellLinOp::defineAuxData ()
 void
 MLCellLinOp::defineBC ()
 {
+    BL_PROFILE("MLCellLinOp::defineBC()");
+    BL_PROFILE_VAR_NS("MLCL::dBC::bndry_sol", blp_bndry_sol);
+    BL_PROFILE_VAR_NS("MLCL::dBC::crse_sol_br", blp_crse_sol_br);
+    BL_PROFILE_VAR_NS("MLCL::dBC::crse_cor_br", blp_crse_cor_br);
+    BL_PROFILE_VAR_NS("MLCL::dBC::bndry_cor", blp_bndry_cor);
+    BL_PROFILE_VAR_NS("MLCL::dBC::bcondloc", blp_bcondloc);
+
     const int ncomp = getNComp();
 
     m_bndry_sol.resize(m_num_amr_levels);
@@ -100,12 +119,15 @@ MLCellLinOp::defineBC ()
     m_bndry_cor.resize(m_num_amr_levels);
     m_crse_cor_br.resize(m_num_amr_levels);
 
+    BL_PROFILE_VAR_START(blp_bndry_sol);
     for (int amrlev = 0; amrlev < m_num_amr_levels; ++amrlev)
     {
         m_bndry_sol[amrlev].reset(new MLMGBndry(m_grids[amrlev][0], m_dmap[amrlev][0],
                                                 ncomp, m_geom[amrlev][0]));
     }
+    BL_PROFILE_VAR_STOP(blp_bndry_sol);
 
+    BL_PROFILE_VAR_START(blp_crse_sol_br);
     for (int amrlev = 1; amrlev < m_num_amr_levels; ++amrlev)
     {
         const int in_rad = 0;
@@ -117,7 +139,9 @@ MLCellLinOp::defineBC ()
         m_crse_sol_br[amrlev].reset(new BndryRegister(cba, m_dmap[amrlev][0],
                                                       in_rad, out_rad, extent_rad, ncomp));
     }
+    BL_PROFILE_VAR_STOP(blp_crse_sol_br);
 
+    BL_PROFILE_VAR_START(blp_crse_cor_br);
     for (int amrlev = 1; amrlev < m_num_amr_levels; ++amrlev)
     {
         const int in_rad = 0;
@@ -130,7 +154,9 @@ MLCellLinOp::defineBC ()
                                                       in_rad, out_rad, extent_rad, ncomp));
         m_crse_cor_br[amrlev]->setVal(0.0);
     }
+    BL_PROFILE_VAR_STOP(blp_crse_cor_br);
 
+    BL_PROFILE_VAR_START(blp_bndry_cor);
     // This has be to done after m_crse_cor_br is defined.
     for (int amrlev = 1; amrlev < m_num_amr_levels; ++amrlev)
     {
@@ -150,7 +176,9 @@ MLCellLinOp::defineBC ()
                                                            BCType::Dirichlet)},
                                              m_amr_ref_ratio[amrlev-1], RealVect{});
     }
+    BL_PROFILE_VAR_STOP(blp_bndry_cor);
 
+    BL_PROFILE_VAR_START(blp_bcondloc);
     m_bcondloc.resize(m_num_amr_levels);
     for (int amrlev = 0; amrlev < m_num_amr_levels; ++amrlev)
     {
@@ -161,6 +189,7 @@ MLCellLinOp::defineBC ()
                                                              m_dmap[amrlev][mglev]));
         } 
     }
+    BL_PROFILE_VAR_STOP(blp_bcondloc);
 }
 
 void
