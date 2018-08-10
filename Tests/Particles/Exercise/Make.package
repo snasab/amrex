@@ -1,0 +1,5 @@
+CEXE_sources += main.cpp test_assign_density.cpp
+
+CEXE_headers == myfunc.H
+
+
