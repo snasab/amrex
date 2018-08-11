@@ -41,16 +41,12 @@ void test_assign_density(TestParams& parms)
   }
 
   DistributionMapping dmap(ba);
-//END INITIALIZE 
 
   MultiFab density(ba, dmap, 1, 0);
   density.setVal(0.0);
 
   MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);
   partMF.setVal(0.0);
-
- // typedef ParticleContainer<1 + BL_SPACEDIM> MyParticleContainer;
- // MyParticleContainer myPC(geom, dmap, ba);
 
   using MyParticleContainer = ParticleContainer<1+BL_SPACEDIM> ;
   MyParticleContainer myPC(geom, dmap, ba);
@@ -63,10 +59,12 @@ void test_assign_density(TestParams& parms)
   bool serialize = true;
   int iseed = 451;
   Real mass = 10.0;
-
+  
   MyParticleContainer::ParticleInitData pdata = {mass, 1.0, 2.0, 3.0};
   myPC.InitRandom(num_particles, iseed, pdata, serialize); 
   myPC.AssignCellDensitySingleLevel(0, partMF, 0, 4, 0);
+  //END INITIALIZE
+
   MultiFab::Copy(density, partMF, 0, 0, 1, 0);
 
   myPC.WriteAsciiFile("particles");

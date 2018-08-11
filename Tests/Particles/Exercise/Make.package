@@ -1,5 +1,5 @@
-CEXE_sources += main.cpp test_assign_density.cpp
+CEXE_sources += main.cpp DensityParticleContainer.cpp
 
-CEXE_headers == myfunc.H
+CEXE_headers == DensityParticleContainer.H
 
 

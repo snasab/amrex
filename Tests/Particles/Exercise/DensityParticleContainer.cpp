@@ -1,4 +1,11 @@
 //add some header files here 
+#include <iostream>
+#include <AMReX.H>
+#include <AMReX_MultiFab.H>
+#include <AMReX_MultiFabUtil.H>
+#include "AMReX_Particles.H"
+#include "AMReX_PlotFileUtil.H"
+#include "DensityParticleContainer.H"
 
 using namespace amrex; 
 
@@ -38,6 +45,73 @@ DensityParticleContainer(const Geometry             &geom,
   }
 
   DistributionMapping dmap(ba);
-   	
+  
+  MultiFab density(ba, dmap, 1, 0);
+  density.setVal(0.0);
+
+  MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);
+  partMF.setVal(0.0);
+
+  using MyParticleContainer = ParticleContainer<1+BL_SPACEDIM> ;
+  MyParticleContainer myPC(geom, dmap, ba);
+  myPC.SetVerbose(false);
+
+  int num_particles = parms.nppc * parms.nx * parms.ny * parms.nz;
+  if (ParallelDescriptor::IOProcessor())
+    std::cout << "Total number of particles    : " << num_particles << '\n' << '\n';
+
+  bool serialize = true;
+  int iseed = 451;
+  Real mass = 10.0;
+
+  MyParticleContainer::ParticleInitData pdata = {mass, 1.0, 2.0, 3.0};
+  myPC.InitRandom(num_particles, iseed, pdata, serialize);
+  myPC.AssignCellDensitySingleLevel(0, partMF, 0, 4, 0);
+  	
+}*/
+
+void DensityParticleContainer::moveParticles(const Real dt){
+    BL_PROFILE("DensityParticleContainer::moveParticles");
+    
+    TestParams parms;
+    
+    const int lev = 0; 
+    
+    //Read in parms
+    IntVect domain_lo(0 , 0, 0);
+    IntVect domain_hi(parms.nx - 1, parms.ny - 1, parms.nz-1);
+
+    for (ParIter pti(*this, lev); pti.isValid(); ++pti){
+        AoS& particles = pti.GetArrayOfStructs();
+        int Np = particles.size();
+        move_particles(particles.data(), &Np, &dt, domain_lo, domain_hi);
+    }
 }
-*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

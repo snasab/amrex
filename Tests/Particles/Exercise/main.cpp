@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     std::cout << parms.nx << " " << parms.ny << " " << parms.nz << std::endl;
   }
   
-  test_assign_density(parms);
+//  test_assign_density(parms);
   
   amrex::Finalize();
 }
