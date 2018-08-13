@@ -5,7 +5,7 @@ module part_fort_module
   implicit none 
   private 
 
-  public particle_t, move_particles
+  public particle_t
   
   type, bind(C) :: particle_t 
     real(amrex_particle_real) :: pos(3) 
@@ -14,10 +14,11 @@ module part_fort_module
     integer(c_int)            :: id 
     integer(c_int)            :: cpu
   end type particle_t
+end module part_fort_module
 
-contains
+!contains
 
-   subroutine move_particles(particles, Np, domain_lo, domain_hi, dt) bind(c, name='move_particles') 
+   subroutine amrex_move_particles(particles, Np, dt, domain_lo, domain_hi) bind(c, name='amrex_move_particles') 
      use iso_c_binding, only: c_ptr, c_int, c_f_pointer 
      use amrex_fort_module, only: amrex_real
      use part_fort_module, only: particle_t !Should I declare this? 
@@ -29,7 +30,8 @@ contains
      integer(c_int), intent(in) :: domain_lo(3), domain_hi(3) 
      real(amrex_real), intent(in) :: dt 
      type(particle_t), pointer :: p
-     
+     integer :: i
+ 
      do i = 1, np
        p => particles(i)
 
@@ -45,6 +47,6 @@ contains
 
      !Cooler things later ...
      enddo 
-  end subroutine move_particles
+  end subroutine amrex_move_particles
 
-end module part_fort_module
+!end module part_fort_module

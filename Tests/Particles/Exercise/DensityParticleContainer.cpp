@@ -1,5 +1,6 @@
 //add some header files here 
 #include "DensityParticleContainer.H"
+#include "density_F.H"
 //No Params header here.. because other header uses it? 
 
 using namespace amrex; 
@@ -77,7 +78,8 @@ void DensityParticleContainer::moveParticles(const Real dt){
     TestParams parms;
     
     const int lev = 0; 
-    
+    const RealBox& prob_domain = Geom(lev).ProbDomain();  
+ 
     //Read in parms
     IntVect domain_lo(0 , 0, 0);
     IntVect domain_hi(parms.nx - 1, parms.ny - 1, parms.nz-1);
@@ -85,7 +87,7 @@ void DensityParticleContainer::moveParticles(const Real dt){
     for (DParIter pti(*this, lev); pti.isValid(); ++pti){
         AoS& particles = pti.GetArrayOfStructs();
         int Np = particles.size();
-//        move_particles(particles.data(), &Np, &dt, domain_lo, domain_hi);
+        amrex_move_particles(particles.data(), &Np, &dt, prob_domain.lo(), prob_domain.hi());
     }
 
 }
