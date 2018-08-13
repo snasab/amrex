@@ -1,5 +1,5 @@
-CEXE_sources += main.cpp DensityParticleContainer.cpp
+CEXE_sources += main.cpp DensityParticleContainer.cpp 
 
-CEXE_headers == DensityParticleContainer.H
+CEXE_headers == DensityParticleContainer.H AMReX_Params.H
 
 

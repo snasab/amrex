@@ -1,13 +1,10 @@
-#ifndef MYFUNC_H_
-#define MYFUNC_H_
-
-#include <iostream>
+#ifndef _AMREX_PARAMS_H_
+#define _AMREX_PARAMS_H_
 
 #include <AMReX.H>
+#include <AMReX_Particles.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_MultiFabUtil.H>
-#include "AMReX_Particles.H"
-#include "AMReX_PlotFileUtil.H"
 
 using namespace amrex;
 
@@ -21,6 +18,4 @@ struct TestParams {
 };
 
 
-void test_assign_density(TestParams& parms); 
-
-#endif
+#endif // _AMREX_PARAMS_H_

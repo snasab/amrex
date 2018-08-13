@@ -1,11 +1,6 @@
 //add some header files here 
-#include <iostream>
-#include <AMReX.H>
-#include <AMReX_MultiFab.H>
-#include <AMReX_MultiFabUtil.H>
-#include "AMReX_Particles.H"
-#include "AMReX_PlotFileUtil.H"
 #include "DensityParticleContainer.H"
+//No Params header here.. because other header uses it? 
 
 using namespace amrex; 
 
@@ -16,9 +11,11 @@ DensityParticleContainer(const Geometry             &geom,
                         : ParticleContainer<1+BL_SPACEDIM>(geom, dmap, ba)
 {}
 
-/*void DensityParticleContainer::InitParticles(...same as header inputs ..){
+void DensityParticleContainer::InitParticles(TestParams& parms){
   BL_PROFILE("DensityParticleContainer::InitParticles");
   
+  const int lev = 0;
+
   RealBox real_box;
   for (int n = 0; n < BL_SPACEDIM; n++) {
     real_box.setLo(n, 0.0);
@@ -49,11 +46,12 @@ DensityParticleContainer(const Geometry             &geom,
   MultiFab density(ba, dmap, 1, 0);
   density.setVal(0.0);
 
-  MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);
-  partMF.setVal(0.0);
+// XX I don't think this multifab is necessary here // 
+//  MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);
+//  partMF.setVal(0.0);
 
-  using MyParticleContainer = ParticleContainer<1+BL_SPACEDIM> ;
-  MyParticleContainer myPC(geom, dmap, ba);
+//  using MyParticleContainer = DensityParticleContainer<1+BL_SPACEDIM> ;
+  DensityParticleContainer myPC(geom, dmap, ba);
   myPC.SetVerbose(false);
 
   int num_particles = parms.nppc * parms.nx * parms.ny * parms.nz;
@@ -64,11 +62,14 @@ DensityParticleContainer(const Geometry             &geom,
   int iseed = 451;
   Real mass = 10.0;
 
-  MyParticleContainer::ParticleInitData pdata = {mass, 1.0, 2.0, 3.0};
+  DensityParticleContainer::ParticleInitData pdata = {mass, 1.0, 2.0, 3.0};
   myPC.InitRandom(num_particles, iseed, pdata, serialize);
-  myPC.AssignCellDensitySingleLevel(0, partMF, 0, 4, 0);
+  myPC.AssignCellDensitySingleLevel(0, density, lev, 4, lev);
+  //    void AssignDensity (int rho_index,
+  //                      Vector<std::unique_ptr<MultiFab> >& mf_to_be_filled,
+  //                      int lev_min, int ncomp, int finest_level) const;
   	
-}*/
+}
 
 void DensityParticleContainer::moveParticles(const Real dt){
     BL_PROFILE("DensityParticleContainer::moveParticles");
@@ -81,11 +82,12 @@ void DensityParticleContainer::moveParticles(const Real dt){
     IntVect domain_lo(0 , 0, 0);
     IntVect domain_hi(parms.nx - 1, parms.ny - 1, parms.nz-1);
 
-    for (ParIter pti(*this, lev); pti.isValid(); ++pti){
+    for (DParIter pti(*this, lev); pti.isValid(); ++pti){
         AoS& particles = pti.GetArrayOfStructs();
         int Np = particles.size();
-        move_particles(particles.data(), &Np, &dt, domain_lo, domain_hi);
+//        move_particles(particles.data(), &Np, &dt, domain_lo, domain_hi);
     }
+
 }
 
 

@@ -1,0 +1,59 @@
+=== If no file names and line numbers are shown below, one can run
+            addr2line -Cfie my_exefile my_line_address
+    to convert `my_line_address` (e.g., 0x4a6b) into file name and line number.
+
+=== Please note that the line number reported by addr2line may not be accurate.
+    One can use
+            readelf -wl my_exefile | grep my_line_address'
+    to find out the offset for that line.
+
+ 0: ./main3d.gnu.TPROF.MPI.ex() [0x4e6b0b]
+    amrex::BLBackTrace::print_backtrace_info(_IO_FILE*)
+    /home/snasab/repo/amrex/Tests/Particles/Exercise/../../..//Src/Base/AMReX_BLBackTrace.cpp:108
+
+ 1: ./main3d.gnu.TPROF.MPI.ex() [0x4e7dc5]
+    amrex::BLBackTrace::handler(int)
+    /home/snasab/repo/amrex/Tests/Particles/Exercise/../../..//Src/Base/AMReX_BLBackTrace.cpp:55
+
+ 2: /lib/x86_64-linux-gnu/libc.so.6(+0x354b0) [0x7f3d529734b0]
+    ??
+    ??:0
+
+ 3: ./main3d.gnu.TPROF.MPI.ex() [0x4e8fc1]
+    std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<c    har, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats> > >::_M_lower_bound(std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats> >*, std::_Rb_tree_node<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats> >*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+    /usr/include/c++/5/bits/stl_tree.h:1627
+    std::_Rb_tree<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats>, std::_Select1st<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats> >, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<c    har, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats> > >::lower_bound(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+    /usr/include/c++/5/bits/stl_tree.h:1091
+    std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, amrex::TinyProfiler::Stats, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats> > >::lower_bound(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+    /usr/include/c++/5/bits/stl_map.h:916
+    std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, amrex::TinyProfiler::Stats, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, amrex::TinyProfiler::Stats> > >::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+    /usr/include/c++/5/bits/stl_map.h:479
+    amrex::TinyProfiler::start()
+    /home/snasab/repo/amrex/Tests/Particles/Exercise/../../..//Src/Base/AMReX_TinyProfiler.cpp:75
+
+ 4: ./main3d.gnu.TPROF.MPI.ex() [0x4e9443]
+    amrex::TinyProfiler::TinyProfiler(char const*)
+    /home/snasab/repo/amrex/Tests/Particles/Exercise/../../..//Src/Base/AMReX_TinyProfiler.cpp:47
+
+ 5: ./main3d.gnu.TPROF.MPI.ex() [0x4b305a]
+    amrex::IntVect::operator==(amrex::IntVect const&) const
+    /home/snasab/repo/amrex/Tests/Particles/Exercise/../../..//Src/Base/AMReX_IntVect.H:177
+    amrex::MultiFab::SumBoundary(int, int, amrex::Periodicity const&)
+    /home/snasab/repo/amrex/Tests/Particles/Exercise/../../..//Src/Base/AMReX_MultiFab.cpp:1484
+
+ 6: ./main3d.gnu.TPROF.MPI.ex() [0x41fdab]
+    amrex::ParticleContainer<4, 0, 0, 0>::AssignCellDensitySingleLevel(int, amrex::MultiFab&, int, int, int) const
+    /home/snasab/repo/amrex/Tests/Particles/Exercise/../../..//Src/Particle/AMReX_ParticleContainerI.H:2832 (discriminator 2)
+
+ 7: ./main3d.gnu.TPROF.MPI.ex() [0x40e0fb]
+    main
+    /home/snasab/repo/amrex/Tests/Particles/Exercise/main.cpp:96
+
+ 8: /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf0) [0x7f3d5295e830]
+    ??
+    ??:0
+
+ 9: ./main3d.gnu.TPROF.MPI.ex() [0x410bf9]
+    _start
+    ??:?
+

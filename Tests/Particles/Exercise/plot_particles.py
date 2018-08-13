@@ -12,8 +12,8 @@ import numpy as np
 	plt.show()
 	plt.close()'''
 
-for i in range(0,3):
-        x,y,z,dens,vx,vy,vz,num,cpu = np.loadtxt('particles' + str(i), skiprows=5,unpack=True)
+for i in range(0,1):
+        x,y,z,dens,vx,vy,vz,num,cpu = np.loadtxt('particles', skiprows=5,unpack=True)
 
         fig = plt.figure()
         ax  = fig.add_subplot(111)
