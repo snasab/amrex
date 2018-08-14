@@ -1,0 +1,5 @@
+CEXE_sources += main.cpp DensityParticleContainer.cpp
+CEXE_headers += DensityParticleContainer.H AMReX_Params.H
+
+FEXE_headers += density_F.H  
+f90EXE_sources += fort_part.f90 
