@@ -14,6 +14,7 @@ struct TestParams {
   int nz;
   int max_grid_size;
   int nppc;
+  Real dt;
   bool verbose;
 };
 

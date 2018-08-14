@@ -23,7 +23,8 @@ public:
     
 
     void moveParticles(const Real dt);    
-
+    
+    void writeParticles(int n);
     };
 
 }

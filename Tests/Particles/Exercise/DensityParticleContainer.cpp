@@ -92,6 +92,14 @@ void DensityParticleContainer::moveParticles(const Real dt){
 
 }
 
+void DensityParticleContainer::writeParticles(int n){
+  
+    BL_PROFILE("DensityParticleContainer::writeParticles");
+
+    const std::string& pltfile = amrex::Concatenate("particles",n,5);
+    WriteAsciiFile(pltfile);
+}
+
 
 
 

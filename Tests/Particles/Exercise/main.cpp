@@ -13,7 +13,6 @@ int main(int argc, char* argv[])
 {
   amrex::Initialize(argc,argv);
  
-  Real dt;
   int max_step;
  
   ParmParse pp;
@@ -25,6 +24,7 @@ int main(int argc, char* argv[])
   pp.get("nz", parms.nz);
   pp.get("max_grid_size", parms.max_grid_size);
   pp.get("nppc", parms.nppc);
+  pp.get("dt", parms.dt);
   if (parms.nppc < 1 && ParallelDescriptor::IOProcessor())
     amrex::Abort("Must specify at least one particle per cell");
   
@@ -92,7 +92,13 @@ int main(int argc, char* argv[])
   myPC.InitRandom(num_particles, iseed, pdata, serialize);
   myPC.AssignCellDensitySingleLevel(0, partMF, lev, 4, lev);
 
-  myPC.WriteAsciiFile("particles");  
-  
+  //myPC.writeParticles(0); works out here
+  for (int i = 0; i < 2; i++) { 
+    myPC.writeParticles(i);
+    myPC.moveParticles(parms.dt);
+    myPC.Redistribute();
+  }
+   
+ 
   amrex::Finalize();
 }

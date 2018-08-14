@@ -5,14 +5,14 @@ DEBUG	= FALSE
 
 DIM	= 3
 
-COMP    = gcc
+COMP    = intel
 
 TINY_PROFILE = TRUE
 USE_PARTICLES = TRUE
 
 PRECISION = DOUBLE
 
-USE_MPI   = TRUE
+USE_MPI   = FALSE
 USE_OMP   = FALSE
 
 ###################################################
