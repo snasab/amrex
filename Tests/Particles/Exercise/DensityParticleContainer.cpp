@@ -1,4 +1,5 @@
-//add some header files here 
+//add some header files here
+#include <iostream> 
 #include "DensityParticleContainer.H"
 #include "density_F.H"
 //No Params header here.. because other header uses it? 
@@ -15,62 +16,63 @@ DensityParticleContainer(const Geometry             &geom,
 void DensityParticleContainer::InitParticles(TestParams& parms){
   BL_PROFILE("DensityParticleContainer::InitParticles");
   
-  const int lev = 0;
-
-  RealBox real_box;
-  for (int n = 0; n < BL_SPACEDIM; n++) {
-    real_box.setLo(n, 0.0);
-    real_box.setHi(n, 1.0);
-  }
-
-  IntVect domain_lo(0 , 0, 0);
-  IntVect domain_hi(parms.nx - 1, parms.ny - 1, parms.nz-1);
-  const Box domain(domain_lo, domain_hi);
-
-  // This says we are using Cartesian coordinates
-  int coord = 0;
-
-  // This sets the boundary conditions to be doubly or triply periodic
-  int is_per[BL_SPACEDIM];
-  for (int i = 0; i < BL_SPACEDIM; i++)
-    is_per[i] = 1;
-  Geometry geom(domain, &real_box, CoordSys::cartesian, is_per);
-
-  BoxArray ba(domain);
-  ba.maxSize(parms.max_grid_size);
-  if (parms.verbose && ParallelDescriptor::IOProcessor()) {
-    std::cout << "Number of boxes              : " << ba[0].size() << '\n' << '\n';
-  }
-
-  DistributionMapping dmap(ba);
-  
-  MultiFab density(ba, dmap, 1, 0);
-  density.setVal(0.0);
-
-// XX I don't think this multifab is necessary here // 
-//  MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);
-//  partMF.setVal(0.0);
-
-//  using MyParticleContainer = DensityParticleContainer<1+BL_SPACEDIM> ;
-  DensityParticleContainer myPC(geom, dmap, ba);
-  myPC.SetVerbose(false);
-
+  //TestParams parms; 
   int num_particles = parms.nppc * parms.nx * parms.ny * parms.nz;
-  if (ParallelDescriptor::IOProcessor())
-    std::cout << "Total number of particles    : " << num_particles << '\n' << '\n';
 
-  bool serialize = true;
-  int iseed = 451;
-  Real mass = 10.0;
+  const int lev = 0;
+  const Geometry& geom = Geom(lev);
+  const Real* dx = geom.CellSize();
+  
+  for (MFIter mfi = MakeMFIter(lev); mfi.isValid(); ++mfi){
+//    //Declare no particles first
+    auto& particles = GetParticles(lev)[std::make_pair(mfi.index(), mfi.LocalTileIndex())];  
+    for (int i = 0; i < num_particles; ++i){ 
+           // std::cout << "ME: " << i << std::endl;
+            ParticleType p;
+            p.id() = ParticleType::NextID();
+            p.cpu() = ParallelDescriptor::MyProc();
 
-  DensityParticleContainer::ParticleInitData pdata = {mass, 1.0, 2.0, 3.0};
-  myPC.InitRandom(num_particles, iseed, pdata, serialize);
-  myPC.AssignCellDensitySingleLevel(0, density, lev, 4, lev);
-  //    void AssignDensity (int rho_index,
-  //                      Vector<std::unique_ptr<MultiFab> >& mf_to_be_filled,
-  //                      int lev_min, int ncomp, int finest_level) const;
-  	
-}
+            p.pos(0) = float(i)/float(num_particles);
+            p.pos(1) = float(i)/float(num_particles);
+#if (BL_SPACEDIM == 3)
+            p.pos(2) = float(i)/float(num_particles);
+            p.rdata(3) = 3.0; //uz
+#endif
+            p.rdata(1) = 1.0;//ux //XX Maybe parm this? 
+            p.rdata(2) = 2.0; //uy
+            p.rdata(0) = 10.0;//mass
+            
+            particles.push_back(p);
+     }
+
+
+    //ParticleType p;
+ /*   const Box& tile_box = mfi.tilebox();
+    const RealBox tile_real_box { tile_box, dx, geom.ProbLo() };
+
+    const int grid_id = mfi.index();
+    const int tile_id = mfi.LocalTileIndex();
+    auto& particle_tile = GetParticles(lev)[std::make_pair(grid_id, tile_id)];
+
+    const auto& boxlo = tile_box.smallEnd();
+    ParticleType p;
+        for (IntVect iv = tile_box.smallEnd(); iv <= tile_box.bigEnd(); tile_box.next(iv)) {
+
+            p.id() = ParticleType::NextID();
+            p.cpu() = ParallelDescriptor::MyProc();
+
+            p.pos(0) = tile_real_box.lo(0) + (iv[0]- boxlo[0] + 0.5)*dx[0];
+            p.pos(1) = tile_real_box.lo(1) + (iv[1]- boxlo[1] + 0.5)*dx[1];
+#if (BL_SPACEDIM == 3)
+            p.pos(2) = tile_real_box.lo(2) + (iv[2]- boxlo[2] + 0.5)*dx[2];
+            p.rdata(3) = 3.0; //uz
+#endif
+            p.rdata(1) = 1.0;//ux //XX Maybe parm this? 
+            p.rdata(2) = 2.0; //uy
+            p.rdata(0) = 10.0;//mass
+            std::cout << "XX: " << p.rdata(0); 
+   }*/
+}}
 
 void DensityParticleContainer::moveParticles(const Real dt){
     BL_PROFILE("DensityParticleContainer::moveParticles");
@@ -97,6 +99,7 @@ void DensityParticleContainer::writeParticles(int n){
     BL_PROFILE("DensityParticleContainer::writeParticles");
 
     const std::string& pltfile = amrex::Concatenate("particles",n,5);
+    //Concatenate(plot_file_root,level_steps[0],file_name_digits);
     WriteAsciiFile(pltfile);
 }
 

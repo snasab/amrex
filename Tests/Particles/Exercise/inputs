@@ -1,6 +1,6 @@
 #Timestepping
-max_step = 5
-dt = .001
+max_step = 20
+dt = .1
 
 # Domain size
 

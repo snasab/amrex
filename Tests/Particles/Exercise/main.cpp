@@ -13,18 +13,18 @@ int main(int argc, char* argv[])
 {
   amrex::Initialize(argc,argv);
  
-  int max_step;
- 
   ParmParse pp;
   
   TestParams parms;
-  
+    
   pp.get("nx", parms.nx);
   pp.get("ny", parms.ny);
   pp.get("nz", parms.nz);
   pp.get("max_grid_size", parms.max_grid_size);
   pp.get("nppc", parms.nppc);
+  pp.get("max_step", parms.max_step);
   pp.get("dt", parms.dt);
+  pp.get("max_step", parms.max_step);
   if (parms.nppc < 1 && ParallelDescriptor::IOProcessor())
     amrex::Abort("Must specify at least one particle per cell");
   
@@ -68,11 +68,12 @@ int main(int argc, char* argv[])
   
   DistributionMapping dmap(ba);
 
+// Density multifab does not require a ghost cell
   MultiFab density(ba, dmap, 1,0);
   density.setVal(0.0); 
 
   
-// XX I think this multifab is necessary here -- ghost cell // 
+// This multifab is necessary here -- ghost cell // 
   MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);
   partMF.setVal(0.0);
 
@@ -88,12 +89,14 @@ int main(int argc, char* argv[])
   int iseed = 451; 
   Real mass = 10.0;
 
-  DensityParticleContainer::ParticleInitData pdata = {mass, 1.0, 2.0, 3.0};
-  myPC.InitRandom(num_particles, iseed, pdata, serialize);
-  myPC.AssignCellDensitySingleLevel(0, partMF, lev, 4, lev);
+  myPC.InitParticles(parms);
+ // myPC.InitRandom(num_particles, iseed, pdata, serialize);
 
-  //myPC.writeParticles(0); works out here
-  for (int i = 0; i < 2; i++) { 
+  // Requires ghost cell for multifab 
+  myPC.AssignCellDensitySingleLevel(0, partMF, lev, 4, lev);
+  
+  //Write particle data -- MAKE THIS AN OPTION (WRITE OR PLT files)  
+  for (int i = 0; i < parms.max_step; i++) { 
     myPC.writeParticles(i);
     myPC.moveParticles(parms.dt);
     myPC.Redistribute();

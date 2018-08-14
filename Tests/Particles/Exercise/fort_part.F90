@@ -31,7 +31,6 @@ end module part_fort_module
      real(amrex_real), intent(in) :: dt  !intent(in), value:: 
      type(particle_t), pointer :: p
      integer :: i
-     print*, "X", np, dt
      do i = 1, np
        p => particles(i)
 
@@ -40,11 +39,9 @@ end module part_fort_module
      !p%vel(1) = ...
      !p%vel(2) = ...
      !p%vel(3) = ...
-
      p%pos(1) = p%pos(1) + p%vel(1) * dt 
      p%pos(2) = p%pos(2) + p%vel(2) * dt
      p%pos(3) = p%pos(3) + p%vel(3) * dt
-     !Cooler things later ...
      enddo 
   end subroutine amrex_move_particles
 

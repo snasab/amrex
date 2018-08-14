@@ -9,12 +9,13 @@
 using namespace amrex;
 
 struct TestParams {
+  int max_step;
+  Real dt;
   int nx;
   int ny;
   int nz;
   int max_grid_size;
   int nppc;
-  Real dt;
   bool verbose;
 };
 

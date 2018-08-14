@@ -1,4 +1,4 @@
-from mpl_toolkits.mplot3d import Axes3D
+#from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt 
 import numpy as np
 
@@ -12,8 +12,8 @@ import numpy as np
 	plt.show()
 	plt.close()'''
 
-for i in range(0,1):
-        x,y,z,dens,vx,vy,vz,num,cpu = np.loadtxt('particles', skiprows=5,unpack=True)
+for i in range(0,10):
+        x,y,z,dens,vx,vy,vz,num,cpu = np.loadtxt(('particles0000' + str(i)), skiprows=5,unpack=True)
 
         fig = plt.figure()
         ax  = fig.add_subplot(111)
@@ -21,3 +21,12 @@ for i in range(0,1):
         ax.scatter(x,y)
         plt.show()
         plt.close() 
+for i in range(10,20):
+        x,y,z,dens,vx,vy,vz,num,cpu = np.loadtxt(('particles000' + str(i)), skiprows=5,unpack=True)
+
+        fig = plt.figure()
+        ax  = fig.add_subplot(111)
+
+        ax.scatter(x,y)
+        plt.show()
+        plt.close()
