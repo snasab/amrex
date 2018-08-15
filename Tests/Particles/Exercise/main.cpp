@@ -9,6 +9,7 @@
 
 using namespace amrex;
 
+
 int main(int argc, char* argv[])
 {
   amrex::Initialize(argc,argv);
@@ -35,6 +36,8 @@ int main(int argc, char* argv[])
     std::cout << std::endl;
     std::cout << "Number of particles per cell : ";
     std::cout << parms.nppc  << std::endl;
+    int num_particles = parms.nppc * parms.nx * parms.ny * parms.nz;
+    std::cout << "Total number of particles    : " << num_particles << std::endl;
     std::cout << "Size of domain               : ";
     std::cout << parms.nx << " " << parms.ny << " " << parms.nz << std::endl;
   }
@@ -67,12 +70,22 @@ int main(int argc, char* argv[])
   } 
   
   DistributionMapping dmap(ba);
-
-// Density multifab does not require a ghost cell
-  MultiFab density(ba, dmap, 1,0);
-  density.setVal(0.0); 
-
   
+
+//Fluid multifab 
+  const int ng = 1; //Number of ghost cells 
+  MultiFab fluidMF(ba, dmap, BL_SPACEDIM, ng);
+  fluidMF.setVal(0.0);
+
+//Initialize fluid (u) by calling Fortran routine. 
+  for (MFIter mfi(fluidMF); mfi.isValid(); ++mfi){
+  const int lev = 0;
+  const RealBox & prob_domain = Geom(lev).ProbDomain();
+     // const Box& bx = mfi.validbox();
+
+      init_fluid(prob_domain.lo(), prob_domain.hi());//, BL_TO_FORTRAN_ANYD(fluidMF[mfi]));
+  }
+
 // This multifab is necessary here -- ghost cell // 
   MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);
   partMF.setVal(0.0);
@@ -81,19 +94,14 @@ int main(int argc, char* argv[])
   DensityParticleContainer myPC(geom, dmap, ba);
   myPC.SetVerbose(false);
   
-  int num_particles = parms.nppc * parms.nx * parms.ny * parms.nz;
-  if (ParallelDescriptor::IOProcessor())
-    std::cout << "Total number of particles    : " << num_particles << '\n' << '\n';
-    
-  bool serialize = true;
-  int iseed = 451; 
-  Real mass = 10.0;
 
   myPC.InitParticles(parms);
+
+ // bool serialize = true;
+ // int iseed = 451;
  // myPC.InitRandom(num_particles, iseed, pdata, serialize);
 
-  // Requires ghost cell for multifab 
-  myPC.AssignCellDensitySingleLevel(0, partMF, lev, 4, lev);
+  myPC.AssignCellDensitySingleLevel(0, partMF, lev, 4, lev); //This command require a ghost cell. 
   
   //Write particle data -- MAKE THIS AN OPTION (WRITE OR PLT files)  
   for (int i = 0; i < parms.max_step; i++) { 

@@ -1,5 +1,5 @@
 #Timestepping
-max_step = 20
+max_step = 2
 dt = .1
 
 # Domain size
