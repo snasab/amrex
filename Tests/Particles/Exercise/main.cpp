@@ -6,6 +6,7 @@
 #include "AMReX_Particles.H"
 #include "AMReX_PlotFileUtil.H"
 #include "DensityParticleContainer.H"
+#include "density_F.H"
 
 using namespace amrex;
 
@@ -74,17 +75,17 @@ int main(int argc, char* argv[])
 
 //Fluid multifab 
   const int ng = 1; //Number of ghost cells 
-  MultiFab fluidMF(ba, dmap, BL_SPACEDIM, ng);
+  MultiFab fluidMF(ba, dmap, 1, ng);
   fluidMF.setVal(0.0);
 
 //Initialize fluid (u) by calling Fortran routine. 
   for (MFIter mfi(fluidMF); mfi.isValid(); ++mfi){
-  const int lev = 0;
-  const RealBox & prob_domain = Geom(lev).ProbDomain();
-     // const Box& bx = mfi.validbox();
+  const Box& bx = mfi.validbox();
 
-      init_fluid(prob_domain.lo(), prob_domain.hi());//, BL_TO_FORTRAN_ANYD(fluidMF[mfi]));
+  init_fluid(BL_TO_FORTRAN_BOX(bx), BL_TO_FORTRAN_ANYD(fluidMF[mfi]));  
+  //FORT_LAUNCH(bx.loVect(), bx.hiVect(),init_fluid, fluidMF[mfi]);
   }
+
 
 // This multifab is necessary here -- ghost cell // 
   MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);

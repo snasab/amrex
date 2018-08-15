@@ -1,12 +1,11 @@
-subroutine init_fluid(domain_lo, domain_hi) bind(C, name="init_fluid")
+subroutine init_fluid(domain_lo, domain_hi, fluid, f_lo, f_hi) bind(C, name="init_fluid")
 
   use amrex_fort_module, only: amrex_real
-  use iso_c_binding, only: c_int
 
   implicit none
-
-  integer(c_int)  , intent(in)    :: domain_lo(3), domain_hi(3) 
-  real(amrex_real), intent(inout) :: u(domain_lo(1):domain_hi(1), domain_lo(2):domain_hi(2), domain_lo(3):domain_hi(3))
+  
+  integer, intent(in)    :: domain_lo(3), domain_hi(3), f_lo(3), f_hi(3)  
+  real(amrex_real), intent(inout) :: fluid(f_lo(1):f_hi(1), f_lo(2):f_hi(2), f_lo(3):f_hi(3))
   double precision :: dx, dy, dz
   double precision :: xc, yc, zc  
 
@@ -22,7 +21,7 @@ subroutine init_fluid(domain_lo, domain_hi) bind(C, name="init_fluid")
         yc = j*dy
         do i = domain_lo(1), domain_hi(1) 
            xc = i*dx 
-           u(i,j,k) = 0.2*sin(yc) 
+           fluid(i,j,k) = 0.2*sin(yc) 
   enddo
      enddo
         enddo

@@ -7,7 +7,8 @@
 extern "C"
 {
 #endif
-    void init_fluid(const amrex::Real* domain_lo, const amrex::Real* domain_hi); //, amrex_real* fluidMF); 
+    void init_fluid(const int* domain_lo, const int* domain_hi, amrex_real* fluidMF,
+                    const int* dlo, const int* dhi); 
     void amrex_move_particles(void* particles, const int* Np,
 		              const amrex::Real* dt,
 		              const amrex::Real* domain_lo,
