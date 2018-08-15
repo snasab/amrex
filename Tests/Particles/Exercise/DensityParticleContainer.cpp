@@ -46,32 +46,6 @@ void DensityParticleContainer::InitParticles(TestParams& parms){
      }
 
 
-    //ParticleType p;
- /*   const Box& tile_box = mfi.tilebox();
-    const RealBox tile_real_box { tile_box, dx, geom.ProbLo() };
-
-    const int grid_id = mfi.index();
-    const int tile_id = mfi.LocalTileIndex();
-    auto& particle_tile = GetParticles(lev)[std::make_pair(grid_id, tile_id)];
-
-    const auto& boxlo = tile_box.smallEnd();
-    ParticleType p;
-        for (IntVect iv = tile_box.smallEnd(); iv <= tile_box.bigEnd(); tile_box.next(iv)) {
-
-            p.id() = ParticleType::NextID();
-            p.cpu() = ParallelDescriptor::MyProc();
-
-            p.pos(0) = tile_real_box.lo(0) + (iv[0]- boxlo[0] + 0.5)*dx[0];
-            p.pos(1) = tile_real_box.lo(1) + (iv[1]- boxlo[1] + 0.5)*dx[1];
-#if (BL_SPACEDIM == 3)
-            p.pos(2) = tile_real_box.lo(2) + (iv[2]- boxlo[2] + 0.5)*dx[2];
-            p.rdata(3) = 3.0; //uz
-#endif
-            p.rdata(1) = 1.0;//ux //XX Maybe parm this? 
-            p.rdata(2) = 2.0; //uy
-            p.rdata(0) = 10.0;//mass
-            std::cout << "XX: " << p.rdata(0); 
-   }*/
 }}
 
 void DensityParticleContainer::moveParticles(const Real dt){
@@ -93,6 +67,32 @@ void DensityParticleContainer::moveParticles(const Real dt){
     }
 
 }
+
+void DensityParticleContainer::push_momentum(const amrex::MultiFab&U,
+                                             const amrex::Real    dt)
+{
+    BL_PROFILE("DensityParticleContainer::push_momentum");
+
+    
+
+/*void DensityParticleContainer::push_momentum(const amrex::MultiFab& ux,
+                                             const amrex::MultiFab& uy,
+                                             const amrex::MultiFab& uz,
+                                                   amrex::Real      dt)
+{
+    BL_PROFILE("DensityParticleContainer::push_momentum");
+    
+    const int lev = 0;
+    for (DParIter pti(*this, lev); pti.isValid(); ++pti){
+        AoS& particles = pti.GetArrayOfStructs();
+        int Np = particles.size();
+        amrex_push_momentum(particles.data(), &Np, ux.data(), uy.data(), uz.data(), &dt);
+    }
+}*/
+
+
+
+ 
 
 void DensityParticleContainer::writeParticles(int n){
   

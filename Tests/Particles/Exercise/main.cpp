@@ -75,16 +75,34 @@ int main(int argc, char* argv[])
 
 //Fluid multifab 
   const int ng = 1; //Number of ghost cells 
-  MultiFab fluidMF(ba, dmap, 1, ng);
-  fluidMF.setVal(0.0);
+  MultiFab ux(ba, dmap, 1, ng);
+  MultiFab uy(ba, dmap, 1, ng);
+  MultiFab uz(ba, dmap, 1, ng);
+
+  ux.setVal(0.0); uy.setVal(0.0); uz.setVal(0.0);
 
 //Initialize fluid (u) by calling Fortran routine. 
-  for (MFIter mfi(fluidMF); mfi.isValid(); ++mfi){
+  for (MFIter mfi(ux); mfi.isValid(); ++mfi){
   const Box& bx = mfi.validbox();
-
-  init_fluid(BL_TO_FORTRAN_BOX(bx), BL_TO_FORTRAN_ANYD(fluidMF[mfi]));  
-  //FORT_LAUNCH(bx.loVect(), bx.hiVect(),init_fluid, fluidMF[mfi]);
+  //EDIT THHS PART 
+  ux_init(BL_TO_FORTRAN_BOX(bx), BL_TO_FORTRAN_ANYD(ux[mfi]));  
+  uy_init(BL_TO_FORTRAN_BOX(bx), BL_TO_FORTRAN_ANYD(uy[mfi]));
+  uz_init(BL_TO_FORTRAN_BOX(bx), BL_TO_FORTRAN_ANYD(uz[mfi]));
   }
+
+//Single fluid multifab 
+  MultiFab U(ba, dmap, BL_SPACEDIM, ng);
+  U.setVal(0.0);
+  int ncU = U.nComp(); //Number of components (which will represent velocity comp) 
+  for (MFIter mfi(U); mfi.isValid(); ++mfi){
+      const Box& bx = mfi.validbox();
+      const FArrayBox& ufab = U[mfi];
+      Real *up = ufab.dataPtr();
+      const Box% ubox = 
+
+      amrex_init_fluid(bx.loVect(), bx.hiVect(), up, ubox.loVect(), ubox.
+  }
+
 
 
 // This multifab is necessary here -- ghost cell // 
@@ -95,7 +113,7 @@ int main(int argc, char* argv[])
   DensityParticleContainer myPC(geom, dmap, ba);
   myPC.SetVerbose(false);
   
-
+// Initialize particles
   myPC.InitParticles(parms);
 
  // bool serialize = true;
@@ -105,11 +123,11 @@ int main(int argc, char* argv[])
   myPC.AssignCellDensitySingleLevel(0, partMF, lev, 4, lev); //This command require a ghost cell. 
   
   //Write particle data -- MAKE THIS AN OPTION (WRITE OR PLT files)  
-  for (int i = 0; i < parms.max_step; i++) { 
-    myPC.writeParticles(i);
-    myPC.moveParticles(parms.dt);
-    myPC.Redistribute();
-  }
+  //for (int i = 0; i < parms.max_step; i++) { 
+  //  myPC.writeParticles(i);
+  //  myPC.moveParticles(parms.dt);
+  //  myPC.Redistribute();
+  //}
    
  
   amrex::Finalize();

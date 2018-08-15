@@ -21,6 +21,10 @@ public:
     
     void InitParticles(TestParams& parms);
     
+    void push_momentum(const amrex::MultiFab& ux,
+                       const amrex::MultiFab& uy,
+                       const amrex::MultiFab& uz,
+                       amrex::Real      dt);    
 
     void moveParticles(const Real dt);    
     

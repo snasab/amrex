@@ -2,4 +2,4 @@ CEXE_sources += main.cpp DensityParticleContainer.cpp
 CEXE_headers += DensityParticleContainer.H AMReX_Params.H
 
 FEXE_headers += density_F.H  
-F90EXE_sources += fort_part.F90 init_fluid.F90 
+F90EXE_sources += fort_part.F90 init_fluid.F90 evolve.F90 
