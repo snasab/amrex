@@ -68,14 +68,14 @@ void DensityParticleContainer::moveParticles(const Real dt){
 
 }
 
-void DensityParticleContainer::push_momentum(const amrex::MultiFab&U,
+/*void DensityParticleContainer::push_momentum(const amrex::MultiFab&U,
                                              const amrex::Real    dt)
 {
     BL_PROFILE("DensityParticleContainer::push_momentum");
 
     
 
-/*void DensityParticleContainer::push_momentum(const amrex::MultiFab& ux,
+void DensityParticleContainer::push_momentum(const amrex::MultiFab& ux,
                                              const amrex::MultiFab& uy,
                                              const amrex::MultiFab& uz,
                                                    amrex::Real      dt)
@@ -87,8 +87,9 @@ void DensityParticleContainer::push_momentum(const amrex::MultiFab&U,
         AoS& particles = pti.GetArrayOfStructs();
         int Np = particles.size();
         amrex_push_momentum(particles.data(), &Np, ux.data(), uy.data(), uz.data(), &dt);
+     integer(c_int), intent(in) :: Np
     }
-}*/
+} */
 
 
 

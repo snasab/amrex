@@ -16,6 +16,9 @@ extern "C"
     void uz_init(const int* domain_lo, const int* domain_hi, amrex_real* uz_MultiFab,
                     const int* dlo, const int* dhi); 
 
+    void amrex_init_fluid(const int* domain_lo, const int* domain_hi, amrex_real* U_MultiFab,
+                    const int* dlo, const int* dhi,  int ncU);
+    
     void amrex_push_momentum(void* particles, const int* Np, amrex::Real* ux, 
          amrex::Real* uy, amrex::Real* uz, const amrex::Real* dt);
 

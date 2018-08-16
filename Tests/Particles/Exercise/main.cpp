@@ -95,16 +95,16 @@ int main(int argc, char* argv[])
   U.setVal(0.0);
   int ncU = U.nComp(); //Number of components (which will represent velocity comp) 
   for (MFIter mfi(U); mfi.isValid(); ++mfi){
-      const Box& bx = mfi.validbox();
-      const FArrayBox& ufab = U[mfi];
-      Real *up = ufab.dataPtr();
-      const Box% ubox = 
+      const Box& box = mfi.validbox();
+     // const FArrayBox& ufab = U[mfi];
+     // auto* up = ufab.dataPtr();
+     //  const Box% ubox = ufab.box(); 
 
-      amrex_init_fluid(bx.loVect(), bx.hiVect(), up, ubox.loVect(), ubox.
+      amrex_init_fluid(BL_TO_FORTRAN_BOX(box), BL_TO_FORTRAN_ANYD(U[mfi]), ncU);
   }
 
 
-
+/*
 // This multifab is necessary here -- ghost cell // 
   MultiFab partMF(ba, dmap, 1 + BL_SPACEDIM, 1);
   partMF.setVal(0.0);
@@ -129,6 +129,6 @@ int main(int argc, char* argv[])
   //  myPC.Redistribute();
   //}
    
- 
+ */
   amrex::Finalize();
 }
